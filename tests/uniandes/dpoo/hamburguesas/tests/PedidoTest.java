@@ -20,32 +20,20 @@ public class PedidoTest {
 
     @BeforeEach
     public void setUp() {
-        // Productos base
         hamburguesa = new ProductoMenu("Hamburguesa", 10000);
         papas = new ProductoMenu("Papas", 5000);
         gaseosa = new ProductoMenu("Gaseosa", 3000);
-
-        // Combo (20% de descuento)
         ArrayList<ProductoMenu> itemsCombo = new ArrayList<>();
         itemsCombo.add(papas);
         itemsCombo.add(gaseosa);
         combo = new Combo("Combo Papas-Gaseosa", 0.8, itemsCombo); // 20% de descuento aplicado
 
-        // Producto ajustado (agregando ingrediente)
+        // ajusteees al producto
         Ingrediente extraQueso = new Ingrediente("Queso", 2000);
         hamburguesaAjustada = new ProductoAjustado(hamburguesa);
-        // Simulamos agregar manualmente el ingrediente extra
-        try {
-            var campoAgregados = ProductoAjustado.class.getDeclaredField("agregados");
-            campoAgregados.setAccessible(true);
-            ArrayList<Ingrediente> listaAgregados = new ArrayList<>();
-            listaAgregados.add(extraQueso);
-            campoAgregados.set(hamburguesaAjustada, listaAgregados);
-        } catch (Exception e) {
-            fail("No se pudieron simular los ingredientes del producto ajustado");
-        }
+        hamburguesaAjustada.agregarIngrediente(extraQueso);
 
-        // Pedido
+
         pedido = new Pedido("Sergio Quiroga", "Calle 123");
         pedido.agregarProducto(hamburguesaAjustada);
         pedido.agregarProducto(combo);
@@ -54,15 +42,15 @@ public class PedidoTest {
     @Test
     public void testGetIdPedidoIncrementa() {
         Pedido otroPedido = new Pedido("Cliente 2", "Calle 999");
-        assertTrue(otroPedido.getIdPedido() == 1+ pedido.getIdPedido(),
-                "Cada pedido nuevo debe tener un ID mayor al anterior");
+        assertEquals(pedido.getIdPedido() + 1, otroPedido.getIdPedido(),
+        	    "Cada pedido nuevo debe tener un ID mayor al anterior (mayor por 1)");
+
     }
 
     @Test
     public void testPrecioTotalConTiposDiferentes() {
-        // Precios esperados
-        int precioHamburguesa = 10000 + 2000; // con extra queso
-        int precioCombo = (int) ((5000 + 3000) * 0.8); // descuento aplicado
+        int precioHamburguesa = 10000 + 2000;
+        int precioCombo = (int) ((5000 + 3000) * 0.8); 
         int neto = precioHamburguesa + precioCombo;
         int iva = (int) (neto * 0.19);
         int totalEsperado = neto + iva;
@@ -73,13 +61,13 @@ public class PedidoTest {
 
     @Test
     public void testFacturaIncluyeTodosLosProductos() {
-        String factura = pedido.generarTextoFactura();
+        String factura = pedido.generarTextoFactura().toLowerCase();
 
-        assertTrue(factura.contains("Sergio Quiroga"), "Debe incluir el nombre del cliente");
-        assertTrue(factura.contains("Calle 123"), "Debe incluir la dirección del cliente");
+        assertTrue(factura.contains("sergio quiroga"), "Debe incluir el nombre del cliente");
+        assertTrue(factura.contains("calle 123"), "Debe incluir la dirección del cliente");
         assertTrue(factura.contains("hamburguesa"), "Debe incluir la hamburguesa ajustada");
-        assertTrue(factura.contains("Combo"), "Debe incluir el combo");
-        assertTrue(factura.contains("Precio Total"), "Debe incluir el total del pedido");
+        assertTrue(factura.contains("combo"), "Debe incluir el combo");
+        assertTrue(factura.contains("precio total"), "Debe incluir el total del pedido");
     }
 
     @Test
@@ -93,6 +81,6 @@ public class PedidoTest {
         assertTrue(archivo.exists(), "El archivo de factura debería generarse correctamente");
         assertTrue(archivo.length() > 0, "El archivo no debe estar vacío");
 
-        archivo.delete(); // limpieza
+        archivo.delete();
     }
 }

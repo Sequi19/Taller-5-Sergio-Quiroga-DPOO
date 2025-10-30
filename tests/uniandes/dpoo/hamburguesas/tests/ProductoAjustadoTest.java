@@ -1,5 +1,5 @@
 package uniandes.dpoo.hamburguesas.tests;
-
+//prueba commit
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,33 +41,19 @@ class ProductoAjustadoTest {
         assertTrue(texto.contains("Hamburguesa Clásica"),
                 "El texto debe incluir el nombre del producto base");
         assertTrue(texto.contains(String.valueOf(productoAjustado.getPrecio())),
-                "El texto debe incluir el precio real del producto ajustado");
-    }
+               "El texto debe incluir el precio real del producto ajustado");
+            }
 
     @Test
     void testGenerarTextoFacturaConAgregadosYEliminados() {
-        ArrayList<Ingrediente> agregados = new ArrayList<>();
-        agregados.add(queso);
-        agregados.add(tocineta);
+    	 productoAjustado.agregarIngrediente(queso);
+    	    productoAjustado.agregarIngrediente(tocineta);
+    	    productoAjustado.eliminarIngrediente(new Ingrediente("Lechuga", 0));
 
-        ArrayList<Ingrediente> eliminados = new ArrayList<>();
-        eliminados.add(new Ingrediente("Lechuga", 0));
+    	    String texto = productoAjustado.generarTextoFactura();
 
-        try {
-            var campoAgregados = ProductoAjustado.class.getDeclaredField("agregados");
-            var campoEliminados = ProductoAjustado.class.getDeclaredField("eliminados");
-            campoAgregados.setAccessible(true);
-            campoEliminados.setAccessible(true);
-            campoAgregados.set(productoAjustado, agregados);
-            campoEliminados.set(productoAjustado, eliminados);
-        } catch (Exception e) {
-            fail("No se pudo modificar las listas de agregados/eliminados para la prueba");
-        }
-
-        String texto = productoAjustado.generarTextoFactura();
-
-        assertTrue(texto.contains("+Queso"), "Debe listar el ingrediente agregado Queso");
-        assertTrue(texto.contains("+Tocineta"), "Debe listar el ingrediente agregado Tocineta");
-        assertTrue(texto.contains("-Lechuga"), "Debe listar el ingrediente eliminado Lechuga");
-    }
+    	    assertTrue(texto.contains("+Queso"), "Debelistar el ingrediente agregado Queso");
+    	    assertTrue(texto.contains("+Tocineta"), "Debe listar el ingrediente agregadoo Tocineta");
+    	    assertTrue(texto.contains("-Lechuga"), "Debe listar el ingrediente eliminado Lechuga");
+    	}
 }

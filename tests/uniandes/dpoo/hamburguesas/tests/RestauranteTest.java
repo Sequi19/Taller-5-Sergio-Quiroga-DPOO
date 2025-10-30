@@ -17,11 +17,6 @@ public class RestauranteTest {
     void setUp() {
         restaurante = new Restaurante();
     }
-
-    // =======================================
-    // 🧩 PRUEBAS DE PEDIDOS
-    // =======================================
-
     @Test
     @DisplayName("Debe iniciar un pedido correctamente")
     void testIniciarPedidoCorrectamente() throws YaHayUnPedidoEnCursoException {
@@ -57,10 +52,6 @@ public class RestauranteTest {
         );
     }
 
-    // =======================================
-    // 🧾 PRUEBA DE CIERRE Y GUARDADO
-    // =======================================
-
     @Test
     @DisplayName("Debe cerrar y guardar un pedido correctamente")
     void testCerrarYGuardarPedido() throws Exception {
@@ -69,20 +60,30 @@ public class RestauranteTest {
         pedido.agregarProducto(new ProductoMenu("Hamburguesa sencilla", 12000));
 
         File carpeta = new File("./facturas/");
-        if (!carpeta.exists()) carpeta.mkdir();
+        if (!carpeta.exists()) carpeta.mkdirs();
 
         restaurante.cerrarYGuardarPedido();
 
         File factura = new File("./facturas/factura_" + pedido.getIdPedido() + ".txt");
         assertTrue(factura.exists(), "El archivo de factura debe haberse creado");
 
-        // Limpieza (para no dejar archivos sucios)
         factura.delete();
     }
+    
+    @Test
+    @DisplayName("Debe añadir el pedido cerrado a la lista de pedidos")
+    void testPedidoCerradoSeAgregaALista() throws Exception {
+        restaurante.iniciarPedido("Sergio", "Calle 123");
+        Pedido pedido = restaurante.getPedidoEnCurso();
+        pedido.agregarProducto(new ProductoMenu("Hamburguesa", 10000));
 
-    // =======================================
-    // 📄 PRUEBAS DE CARGA DE INFORMACIÓN
-    // =======================================
+        new File("./facturas/").mkdirs();
+        restaurante.cerrarYGuardarPedido();
+
+        assertFalse(restaurante.getPedidos().isEmpty(), "La lista de pedidos debe contener el pedido cerrado");
+    }
+
+   
 
     @Test
     @DisplayName("Debe cargar ingredientes correctamente desde archivo")
@@ -127,10 +128,6 @@ public class RestauranteTest {
         });
     }
 
-    // =======================================
-    // 🔧 MÉTODO AUXILIAR PARA ARCHIVOS TEMPORALES
-    // =======================================
-
     private File crearArchivoTemporal(String nombre, String contenido) throws IOException {
         File archivo = new File(nombre);
         try (FileWriter writer = new FileWriter(archivo)) {
@@ -139,7 +136,6 @@ public class RestauranteTest {
         return archivo;
     }
     
-    //====================lo de arriba que monda?
     
     @Test
     @DisplayName("getPedidoEnCurso debe retornar el pedido actual si existe")
@@ -182,10 +178,7 @@ public class RestauranteTest {
         assertEquals(2, restaurante.getIngredientes().size(), "Debe cargar correctamente los ingredientes");
     }
 
-    // =======================================
-    // ⚠️ TEST DE PRODUCTOREPETIDOEXCEPTION EN COMBOS
-    // =======================================
-
+   
     @Test
     @DisplayName("Debe lanzar ProductoRepetidoException si hay combos repetidos")
     void testProductoRepetidoExceptionEnCombos() throws Exception {
@@ -209,8 +202,8 @@ public class RestauranteTest {
         restaurante.iniciarPedido("Sergio", "Calle 123");
         Pedido pedido = restaurante.getPedidoEnCurso();
 
-        pedido.agregarProducto(restaurante.getMenuBase().get(0)); // Hamburguesa
-        pedido.agregarProducto(restaurante.getMenuCombos().get(0)); // ComboBasico
+        pedido.agregarProducto(restaurante.getMenuBase().get(0)); 
+        pedido.agregarProducto(restaurante.getMenuCombos().get(0)); 
 
         restaurante.cerrarYGuardarPedido();
 
@@ -224,9 +217,7 @@ public class RestauranteTest {
     void testCargarCombosCorrectamente() throws Exception {
         File menu = crearArchivoTemporal("menu_valido.txt", "Hamburguesa;10000\nPapas;5000\n");
         File combos = crearArchivoTemporal("combos_valido.txt", "ComboFeliz;10%;Hamburguesa;Papas\n");
-
         restaurante.cargarInformacionRestaurante(crearArchivoTemporal("ing_valido.txt", ""), menu, combos);
-
         assertEquals(1, restaurante.getMenuCombos().size(), "Debe haberse cargado un combo correctamente");
     }
     
@@ -236,7 +227,6 @@ public class RestauranteTest {
         File archivoIngredientes = crearArchivoTemporal("ingredientes_vacio.txt", "");
         File archivoMenu = crearArchivoTemporal("menu_vacio.txt", "");
         File archivoCombos = crearArchivoTemporal("combos_vacio.txt", "");
-
         assertDoesNotThrow(() -> {
             restaurante.cargarInformacionRestaurante(archivoIngredientes, archivoMenu, archivoCombos);
         }, "Los archivos vacíos no deben generar excepciones");
@@ -261,12 +251,9 @@ public class RestauranteTest {
         restaurante.iniciarPedido("Sergio", "Calle 123");
         Pedido pedido = restaurante.getPedidoEnCurso();
         pedido.agregarProducto(new ProductoMenu("Hamburguesa", 10000));
-
         restaurante.cerrarYGuardarPedido();
-
         assertTrue(carpeta.exists(), "Debe haberse creado la carpeta de facturas automáticamente");
 
-        // limpieza
         for (File f : carpeta.listFiles()) f.delete();
         carpeta.delete();
     }

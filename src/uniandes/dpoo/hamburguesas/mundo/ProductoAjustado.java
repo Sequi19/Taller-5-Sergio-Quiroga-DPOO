@@ -32,6 +32,15 @@ public class ProductoAjustado implements Producto
         agregados = new ArrayList<Ingrediente>( );
         eliminados = new ArrayList<Ingrediente>( );
     }
+    
+    public void agregarIngrediente(Ingrediente ing) {
+        agregados.add(ing);
+    }
+
+    public void eliminarIngrediente(Ingrediente ing) {
+        eliminados.add(ing);
+    }
+
 
     @Override
     public String getNombre( )
@@ -63,7 +72,9 @@ public class ProductoAjustado implements Producto
     public String generarTextoFactura( )
     {
         StringBuffer sb = new StringBuffer( );
-        sb.append( productoBase );
+       // sb.append( productoBase );
+        sb.append(productoBase.getNombre() + "\n");
+
         for( Ingrediente ing : agregados )
         {
             sb.append( "    +" + ing.getNombre( ) );
